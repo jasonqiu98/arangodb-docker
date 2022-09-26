@@ -1,0 +1,180 @@
+version: "3.9"
+services:
+  test:
+    build: .
+    container_name: arango-test
+    environment:
+      - ARANGO_NO_AUTH=1
+    volumes:
+      - ./resources/:/resources/
+    networks:
+      - arangodb-jepsen-test
+
+  agency:
+    image: arangodb:3.9.2
+    container_name: arango-agency
+    environment:
+      - ARANGO_NO_AUTH=1
+    volumes:
+      - ./nodes/agency/:/var/lib/arangodb3/agency
+    command: arangod
+      --server.endpoint tcp://0.0.0.0:8531 
+      --agency.my-address tcp://agency:8531
+      --server.authentication true
+      --agency.activate true
+      --agency.size 1
+      --agency.endpoint tcp://agency:8531
+      --agency.supervision true
+      --database.directory /var/lib/arangodb3/agency
+    networks:
+      - arangodb-jepsen-test
+
+
+  coordinator1:
+    image: arangodb:3.9.2
+    container_name: arango-coordinator1
+    environment:
+      - ARANGO_NO_AUTH=1
+    volumes:
+      - ./nodes/coordinator1/:/var/lib/arangodb3/coordinator
+      - ./logs/coordinator1/:/arangodb-logs
+    command: arangod
+      --server.authentication=true
+      --server.endpoint tcp://0.0.0.0:8529
+      --cluster.my-address tcp://coordinator1:8529
+      --cluster.my-local-info coord1
+      --cluster.my-role COORDINATOR
+      --cluster.agency-endpoint tcp://agency:8531 
+      --database.directory /var/lib/arangodb3/coordinator
+      --log.time-format timestamp-micros
+      --log.level queries=trace
+      --log.level replication=trace
+      --log.level requests=trace
+      --log.output queries=file:///arangodb-logs/queries.log
+      --log.output replication=file:///arangodb-logs/replication.log
+      --log.output requests=file:///arangodb-logs/requests.log
+    ports:
+      - "8000:8529"
+    depends_on:
+      - agency
+    networks:
+      - arangodb-jepsen-test
+
+
+  coordinator2:
+    image: arangodb:3.9.2
+    container_name: arango-coordinator2
+    environment:
+      - ARANGO_NO_AUTH=1
+    volumes:
+      - ./nodes/coordinator2/:/var/lib/arangodb3/coordinator
+      - ./logs/coordinator2/:/arangodb-logs
+    command: arangod
+      --server.authentication=true
+      --server.endpoint tcp://0.0.0.0:8529
+      --cluster.my-address tcp://coordinator2:8529
+      --cluster.my-local-info coord2 
+      --cluster.my-role COORDINATOR
+      --cluster.agency-endpoint tcp://agency:8531
+      --database.directory /var/lib/arangodb3/coordinator
+      --log.time-format timestamp-micros
+      --log.level queries=trace
+      --log.level replication=trace
+      --log.level requests=trace
+      --log.output queries=file:///arangodb-logs/queries.log
+      --log.output replication=file:///arangodb-logs/replication.log
+      --log.output requests=file:///arangodb-logs/requests.log
+    ports:
+      - "8001:8529"
+    depends_on:
+      - agency
+    networks:
+      - arangodb-jepsen-test
+
+
+  db1:
+    image: arangodb:3.9.2
+    container_name: arango-db1
+    environment:
+      - ARANGO_NO_AUTH=1
+    volumes:
+      - ./nodes/db1/:/var/lib/arangodb3/primary1
+      - ./logs/db1/:/arangodb-logs
+    command: arangod
+      --server.endpoint tcp://0.0.0.0:8529
+      --cluster.my-address tcp://db1:8529
+      --cluster.my-local-info db1
+      --cluster.my-role PRIMARY
+      --cluster.agency-endpoint tcp://agency:8531
+      --database.directory /var/lib/arangodb3/primary1
+      --log.time-format timestamp-micros
+      --log.level queries=trace
+      --log.level replication=trace
+      --log.level requests=trace
+      --log.output queries=file:///arangodb-logs/queries.log
+      --log.output replication=file:///arangodb-logs/replication.log
+      --log.output requests=file:///arangodb-logs/requests.log
+    depends_on:
+      - agency
+    networks:
+      - arangodb-jepsen-test
+
+
+  db2:
+    image: arangodb:3.9.2
+    container_name: arango-db2
+    environment:
+      - ARANGO_NO_AUTH=1
+    volumes:
+      - ./nodes/db2/:/var/lib/arangodb3/primary1
+      - ./logs/db2/:/arangodb-logs
+    command: arangod
+      --server.endpoint tcp://0.0.0.0:8529
+      --cluster.my-address tcp://db2:8529
+      --cluster.my-local-info db2
+      --cluster.my-role PRIMARY
+      --cluster.agency-endpoint tcp://agency:8531
+      --database.directory /var/lib/arangodb3/primary1
+      --log.time-format timestamp-micros
+      --log.level queries=trace
+      --log.level replication=trace
+      --log.level requests=trace
+      --log.output queries=file:///arangodb-logs/queries.log
+      --log.output replication=file:///arangodb-logs/replication.log
+      --log.output requests=file:///arangodb-logs/requests.log
+    depends_on:
+      - agency
+    networks:
+      - arangodb-jepsen-test
+
+
+  db3:
+    image: arangodb:3.9.2
+    container_name: arango-db3
+    environment:
+      - ARANGO_NO_AUTH=1
+    volumes:
+      - ./nodes/db3/:/var/lib/arangodb3/primary1
+      - ./logs/db3/:/arangodb-logs
+    command: arangod
+      --server.endpoint tcp://0.0.0.0:8529
+      --cluster.my-address tcp://db3:8529
+      --cluster.my-local-info db3
+      --cluster.my-role PRIMARY
+      --cluster.agency-endpoint tcp://agency:8531
+      --database.directory /var/lib/arangodb3/primary1
+      --log.time-format timestamp-micros
+      --log.level queries=trace
+      --log.level replication=trace
+      --log.level requests=trace
+      --log.output queries=file:///arangodb-logs/queries.log
+      --log.output replication=file:///arangodb-logs/replication.log
+      --log.output requests=file:///arangodb-logs/requests.log
+    depends_on:
+      - agency
+    networks:
+      - arangodb-jepsen-test
+
+networks:
+  arangodb-jepsen-test:
+    driver: bridge
