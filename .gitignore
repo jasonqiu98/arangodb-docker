@@ -1,0 +1,6 @@
+# vscode
+.vscode
+
+# do not include log files
+/logs
+/nodes

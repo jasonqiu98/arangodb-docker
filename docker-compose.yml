@@ -7,6 +7,7 @@ services:
       - ARANGO_NO_AUTH=1
     volumes:
       - ./resources/:/resources/
+      - ./project/:/root/project/
     networks:
       - arangodb-jepsen-test
 
