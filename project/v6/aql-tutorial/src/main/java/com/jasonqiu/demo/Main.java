@@ -134,14 +134,14 @@ public class Main {
         // and one edge collection - relation (type, vertex) [vertex is out vertex]
         createSocialGraph(db);
 
-        // AQL Query 1-4: INSERT
+        // AQL Query 1-3: INSERT
         {
             // insert a vertex
             // https://www.arangodb.com/docs/stable/aql/operations-insert.html#returning-the-inserted-documents
             String query1 = """
                 INSERT { "name": "Eric" } 
                     INTO male
-            """;;
+            """;
             logger.info("Executing AQL Query 1: insert a vertex...");
             try {
                 db.query(query1, null);
@@ -156,7 +156,7 @@ public class Main {
                 INSERT { "name": "Fiona" }
                     INTO female
                     RETURN NEW        
-            """;;
+            """;
             logger.info("Executing AQL Query 2: return the inserted document...");
             try {
                 ArangoCursor<BaseDocument> cursor = db.query(query2, BaseDocument.class);
@@ -169,31 +169,31 @@ public class Main {
             // insert an edge
             // when inserting into an edge collection,
             // it is mandatory to specify the attributes _from and _to in document
-            // String query3 = """
-            //     LET alice = (
-            //         FOR f_alice IN female
-            //             FILTER f_alice.name == "Alice"
-            //             RETURN f_alice
-            //     )
-            //     LET fiona = (
-            //         FOR f_fiona IN female
-            //             FILTER f_fiona.name == "Fiona"
-            //             RETURN f_fiona
-            //     )
-            //     INSERT { _from: alice._id, _to: fiona._id, "type": "friend", "vertex": alice._key }
-            //         INTO relation
-            //         LET r = NEW
-            //         RETURN r._key
-            // """;
-            // logger.info("Executing AQL Query 3: insert an edge...");
+            String query3 = """
+                LET alice = (
+                    FOR f_alice IN female
+                        FILTER f_alice.name == "Alice"
+                        RETURN f_alice
+                )
+                LET fiona = (
+                    FOR f_fiona IN female
+                        FILTER f_fiona.name == "Fiona"
+                        RETURN f_fiona
+                )
+                INSERT { _from: alice[0]._id, _to: fiona[0]._id, "type": "friend", "vertex": alice[0]._key }
+                    INTO relation
+                    LET r = NEW
+                    RETURN r._key
+            """;
+            logger.info("Executing AQL Query 3: insert an edge...");
             
-            // try {
-            //     ArangoCursor<String> cursor = db.query(query3, String.class);
-            //     cursor.forEach(key -> logger.info("Key: " + key));
-            //     logger.info("Query 3 Success.");
-            // } catch (Exception e) {
-            //     logger.error("Query 3 Failure: " + e.getMessage());
-            // }
+            try {
+                ArangoCursor<String> cursor = db.query(query3, String.class);
+                cursor.forEach(key -> logger.info("Key: " + key));
+                logger.info("Query 3 Success.");
+            } catch (Exception e) {
+                logger.error("Query 3 Failure: " + e.getMessage());
+            }
         }
 
 

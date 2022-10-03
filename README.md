@@ -104,3 +104,5 @@ List<BaseEdgeDocument> knowsPersonsDocs = knowsPersons.stream().map(edge -> {
     return edgeDoc;
 }).collect(Collectors.toList());
 ```
+
+7. Access `http://localhost:8000` (for `coordinator1`) and `http://localhost:8001` (for `coordinator2`) in the browser, if the Web UI is needed.
