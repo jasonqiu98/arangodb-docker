@@ -19,7 +19,7 @@ public class Main {
     private static int port = 8529;
 
     // the name of the database used in this example
-    private static String dbName = "mydb";
+    private static String dbName = "quickstart";
     private static String collectionName = "firstCollection";
     private static Logger logger = LoggerFactory.getLogger(Main.class);
 

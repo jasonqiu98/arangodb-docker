@@ -1,7 +1,10 @@
 package com.jasonqiu.demo;
 
 import com.arangodb.*;
+import com.arangodb.entity.BaseDocument;
 import com.arangodb.model.CollectionCreateOptions;
+
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,5 +62,35 @@ public class Utils {
             System.exit(-1);
         }
         return collection;
+    }
+
+    /**
+     * Convert the query result of a document array
+     * to a List<BaseDocuement> in java
+     * @param db
+     * @param query
+     * @return
+     */
+    public static List<BaseDocument> queryDocumentArray(ArangoDatabase db, String query) {
+        
+        // https://stackoverflow.com/questions/2012306/how-to-create-a-class-literal-of-a-known-type-classliststring
+        // Suppress the warning here 
+        // Type safety: Unchecked cast from Class to Class<List<Map<String, Object>>>
+        @SuppressWarnings("unchecked")
+        ArangoCursor<List<Map<String, Object>>> cursor = db.query(query,
+            (Class<List<Map<String, Object>>>) ((Class<?>) List.class));
+        // ArangoCursor<List> cursor = db.query(query5, List.class);
+        List<BaseDocument> docList = new ArrayList<>();
+        for (List<Map<String, Object>> mapList : cursor) {
+            for (Map<String, Object> map : mapList) {
+                BaseDocument doc = new BaseDocument();
+                doc.setId(map.remove("_id").toString());
+                doc.setKey(map.remove("_key").toString());
+                doc.setRevision(map.remove("_rev").toString());
+                doc.setProperties(map);
+                docList.add(doc);
+            }
+        }
+        return docList;
     }
 }

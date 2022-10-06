@@ -27,6 +27,7 @@ services:
       --agency.endpoint tcp://agency:8531
       --agency.supervision true
       --database.directory /var/lib/arangodb3/agency
+      --cluster.require-persisted-id true
     networks:
       - arangodb-jepsen-test
 
@@ -53,6 +54,7 @@ services:
       --log.output queries=file:///arangodb-logs/queries.log
       --log.output replication=file:///arangodb-logs/replication.log
       --log.output requests=file:///arangodb-logs/requests.log
+      --cluster.require-persisted-id true
     ports:
       - "8000:8529"
     depends_on:
@@ -83,6 +85,7 @@ services:
       --log.output queries=file:///arangodb-logs/queries.log
       --log.output replication=file:///arangodb-logs/replication.log
       --log.output requests=file:///arangodb-logs/requests.log
+      --cluster.require-persisted-id true
     ports:
       - "8001:8529"
     depends_on:
@@ -102,7 +105,7 @@ services:
     command: arangod
       --server.endpoint tcp://0.0.0.0:8529
       --cluster.my-address tcp://db1:8529
-      --cluster.my-role PRIMARY
+      --cluster.my-role DBSERVER
       --cluster.agency-endpoint tcp://agency:8531
       --database.directory /var/lib/arangodb3
       --log.time-format timestamp-micros
@@ -112,6 +115,7 @@ services:
       --log.output queries=file:///arangodb-logs/queries.log
       --log.output replication=file:///arangodb-logs/replication.log
       --log.output requests=file:///arangodb-logs/requests.log
+      --cluster.require-persisted-id true
     depends_on:
       - agency
       - coordinator1
@@ -141,6 +145,7 @@ services:
       --log.output queries=file:///arangodb-logs/queries.log
       --log.output replication=file:///arangodb-logs/replication.log
       --log.output requests=file:///arangodb-logs/requests.log
+      --cluster.require-persisted-id true
     depends_on:
       - agency
       - coordinator1
@@ -170,6 +175,7 @@ services:
       --log.output queries=file:///arangodb-logs/queries.log
       --log.output replication=file:///arangodb-logs/replication.log
       --log.output requests=file:///arangodb-logs/requests.log
+      --cluster.require-persisted-id true
     depends_on:
       - agency
       - coordinator1

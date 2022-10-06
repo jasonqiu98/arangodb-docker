@@ -4,3 +4,7 @@
 # do not include log files
 /logs
 /nodes
+
+# do not include maven builds/compiles
+/project/*/*/target
+/project/*/*/bin

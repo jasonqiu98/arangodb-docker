@@ -95,21 +95,6 @@ public class Main {
             }
         }
 
-        // Execute AQL queries
-        {
-            // for (int i = 0; i < 10; i++) {
-            //     BaseDocument value = new BaseDocument(String.valueOf(i));
-            //     value.addAttribute("name", "Homer");
-            //     collection.insertDocument(value);
-            // }
-
-            // String query = "FOR t IN firstCollection FILTER t.name == @name RETURN t";
-            // Map<String, Object> bindVars = Collections.singletonMap("name", "Homer");
-            // logger.info("Executing read query ...");
-            // ArangoCursor<BaseDocument> cursor = db.query(query, bindVars, null, BaseDocument.class);
-            // cursor.forEach(aDocument -> logger.info("Key: " + aDocument.getKey()));
-        }
-
         arangoDB.shutdown();
     }
 }
