@@ -2,8 +2,9 @@ package com.jasonqiu.demo;
 
 import com.arangodb.*;
 import com.arangodb.entity.BaseDocument;
-import com.arangodb.util.RawJson;
+import com.arangodb.mapping.ArangoJack;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 import java.util.Collections;
@@ -13,18 +14,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Main {
-
     // host name and port
     private static String hostname = "coordinator1";
     private static int port = 8529;
 
     // the name of the database used in this example
-    private static String dbName = "quickstart";
+    private static String dbName = "java_driver_tutorial";
     private static String collectionName = "firstCollection";
     private static Logger logger = LoggerFactory.getLogger(Main.class);
 
     private static void cleanup() {
-        ArangoDB arangoDB = new ArangoDB.Builder().host(hostname, port).user("root").password("").build();
+        ArangoDB arangoDB = new ArangoDB.Builder()
+                .serializer(new ArangoJack())
+                .host(hostname, port)
+                .user("root")
+                .password("")
+                .build();
         ArangoDatabase db = arangoDB.db(DbName.of(dbName));
         if (db.exists()) {
             db.drop();
@@ -36,8 +41,12 @@ public class Main {
         cleanup();
 
         // Connection
-        ArangoDB arangoDB = new ArangoDB.Builder().host(hostname, port).user("root").password("").build();
-
+        ArangoDB arangoDB = new ArangoDB.Builder()
+                .serializer(new ArangoJack())
+                .host(hostname, port)
+                .user("root")
+                .password("")
+                .build();
         // Creating a database
         ArangoDatabase db = arangoDB.db(DbName.of(dbName));
         try {
@@ -90,26 +99,10 @@ public class Main {
         // Read a document as Jackson JsonNode
         {
             logger.info("Reading document as Jackson JsonNode...");
-            JsonNode readJsonNode = collection.getDocument(keyJackson, JsonNode.class);
-            logger.info("Key: " + readJsonNode.get("_key").textValue());
-            logger.info("Attribute a: " + readJsonNode.get("a").textValue());
-            logger.info("Attribute b: " + readJsonNode.get("b").intValue());
-        }
-
-        // Creating a document from JSON String
-        String keyJson = "myJsonKey";
-        {
-            logger.info("Creating a document from JSON String...");
-            RawJson json = RawJson.of("{\"_key\":\"" + keyJson + "\",\"a\":\"Baz\",\"b\":64}");
-            logger.info("Inserting document from JSON String...");
-            collection.insertDocument(json);
-        }
-
-        // Read a document as JSON String
-        {
-            logger.info("Reading document as JSON String...");
-            RawJson readJson = collection.getDocument(keyJson, RawJson.class);
-            logger.info(readJson.getValue());
+            JsonNode jsonNode = collection.getDocument(key, ObjectNode.class);
+            logger.info("Key: " + jsonNode.get("_key").textValue());
+            logger.info("Attribute a: " + jsonNode.get("a").textValue());
+            logger.info("Attribute b: " + jsonNode.get("b").intValue());
         }
 
         // Update a document

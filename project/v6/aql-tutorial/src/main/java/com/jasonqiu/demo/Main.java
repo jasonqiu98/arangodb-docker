@@ -40,7 +40,6 @@ public class Main {
         arangoDB.shutdown();
     }
 
-    
     // https://www.arangodb.com/docs/stable/graphs.html#the-social-graph
     // https://github.com/arangodb/arangodb/blob/devel/js/common/modules/%40arangodb/graph-examples/example-graph.js#L76
     // an example - social graph
@@ -51,8 +50,8 @@ public class Main {
         Utils.createCollection(db, "male");
         // https://github.com/arangodb/arangodb-java-driver/issues/142
         Utils.createCollection(db, "relation",
-            new CollectionCreateOptions().type(CollectionType.EDGES).shardKeys("vertex"));
-        
+                new CollectionCreateOptions().type(CollectionType.EDGES).shardKeys("vertex"));
+
         // https://www.arangodb.com/2014/11/arangodb-java-driver-graphs/
         // Edge definitions of the graph
         List<EdgeDefinition> edgeDefinitions = new ArrayList<>();
@@ -69,55 +68,46 @@ public class Main {
 
         // four vertices
         VertexEntity a = db.graph("social").vertexCollection("female").insertVertex(Map.ofEntries(
-            Map.entry("name", "Alice"),
-            Map.entry("_key", "alice")
-        ));
+                Map.entry("name", "Alice"),
+                Map.entry("_key", "alice")));
         VertexEntity b = db.graph("social").vertexCollection("male").insertVertex(Map.ofEntries(
-            Map.entry("name", "Bob"),
-            Map.entry("_key", "bob")
-        ));
+                Map.entry("name", "Bob"),
+                Map.entry("_key", "bob")));
         VertexEntity c = db.graph("social").vertexCollection("male").insertVertex(Map.ofEntries(
-            Map.entry("name", "Charly"),
-            Map.entry("_key", "charly")
-        ));
+                Map.entry("name", "Charly"),
+                Map.entry("_key", "charly")));
         VertexEntity d = db.graph("social").vertexCollection("female").insertVertex(Map.ofEntries(
-            Map.entry("name", "Diana"),
-            Map.entry("_key", "diana")
-        ));
+                Map.entry("name", "Diana"),
+                Map.entry("_key", "diana")));
 
         // four edges
         db.graph("social").edgeCollection("relation").insertEdge(Map.ofEntries(
-            Map.entry("_from", a.getId()),
-            Map.entry("_to", b.getId()),
-            Map.entry("type", "married"),
-            Map.entry("vertex", a.getKey())
-        ));
+                Map.entry("_from", a.getId()),
+                Map.entry("_to", b.getId()),
+                Map.entry("type", "married"),
+                Map.entry("vertex", a.getKey())));
         db.graph("social").edgeCollection("relation").insertEdge(Map.ofEntries(
-            Map.entry("_from", a.getId()),
-            Map.entry("_to", c.getId()),
-            Map.entry("type", "friend"),
-            Map.entry("vertex", a.getKey())
-        ));
+                Map.entry("_from", a.getId()),
+                Map.entry("_to", c.getId()),
+                Map.entry("type", "friend"),
+                Map.entry("vertex", a.getKey())));
         db.graph("social").edgeCollection("relation").insertEdge(Map.ofEntries(
-            Map.entry("_from", c.getId()),
-            Map.entry("_to", d.getId()),
-            Map.entry("type", "married"),
-            Map.entry("vertex", c.getKey())
-        ));
+                Map.entry("_from", c.getId()),
+                Map.entry("_to", d.getId()),
+                Map.entry("type", "married"),
+                Map.entry("vertex", c.getKey())));
         db.graph("social").edgeCollection("relation").insertEdge(Map.ofEntries(
-            Map.entry("_from", d.getId()),
-            Map.entry("_to", b.getId()),
-            Map.entry("type", "friend"),
-            Map.entry("vertex", d.getKey())
-        ));
+                Map.entry("_from", d.getId()),
+                Map.entry("_to", b.getId()),
+                Map.entry("type", "friend"),
+                Map.entry("vertex", d.getKey())));
 
         // add a new edge to form a cycle a -> c -> d -> a
         db.graph("social").edgeCollection("relation").insertEdge(Map.ofEntries(
-            Map.entry("_from", d.getId()),
-            Map.entry("_to", a.getId()),
-            Map.entry("type", "friend"),
-            Map.entry("vertex", d.getKey())
-        ));
+                Map.entry("_from", d.getId()),
+                Map.entry("_to", a.getId()),
+                Map.entry("type", "friend"),
+                Map.entry("vertex", d.getKey())));
 
         endLogger.info("social graph created.");
 
@@ -126,17 +116,16 @@ public class Main {
 
     private static List<BaseDocument> filterByName(ArangoDatabase db, String collectionName, String name) {
         String query = """
-            FOR doc IN @@collection
-                FILTER doc.name == @name
-                RETURN doc        
-        """;
+                    FOR doc IN @@collection
+                        FILTER doc.name == @name
+                        RETURN doc
+                """;
         Map<String, Object> bindVars = Map.ofEntries(
-            Map.entry("@collection", collectionName), // for collection
-            Map.entry("name", name)
-        );
+                Map.entry("@collection", collectionName), // for collection
+                Map.entry("name", name));
         ArangoCursor<BaseDocument> cursor = db.query(query, bindVars, BaseDocument.class);
         beginLogger.info("AQL Read: from collection \"{}\" of name \"{}\"",
-            collectionName, name);
+                collectionName, name);
         List<BaseDocument> docList = cursor.asListRemaining();
         return docList;
     }
@@ -164,14 +153,14 @@ public class Main {
             // insert a vertex
             // https://www.arangodb.com/docs/stable/aql/operations-insert.html#returning-the-inserted-documents
             String query1 = """
-                INSERT { "name": "Eric" } 
-                    INTO male
-            """;
+                        INSERT { "name": "Eric" }
+                            INTO male
+                    """;
 
             beginLogger.info("Executing AQL Query 1: insert a vertex...");
             try {
                 db.query(query1, null);
-                endLogger.info("Query 1 Success."); 
+                endLogger.info("Query 1 Success.");
             } catch (Exception e) {
                 endLogger.error("Query 1 Failure: " + e.getMessage());
             }
@@ -179,10 +168,10 @@ public class Main {
             // return the inserted document
             // https://www.arangodb.com/docs/stable/aql/operations-insert.html#returning-the-inserted-documents
             String query2 = """
-                INSERT { "name": "Fiona" }
-                    INTO female
-                    RETURN NEW        
-            """;
+                        INSERT { "name": "Fiona" }
+                            INTO female
+                            RETURN NEW
+                    """;
 
             beginLogger.info("Executing AQL Query 2: return the inserted document...");
             try {
@@ -197,21 +186,21 @@ public class Main {
             // when inserting into an edge collection,
             // it is mandatory to specify the attributes _from and _to in document
             String query3 = """
-                LET alice = (
-                    FOR f_alice IN female
-                        FILTER f_alice.name == "Alice"
-                        RETURN f_alice
-                )
-                LET fiona = (
-                    FOR f_fiona IN female
-                        FILTER f_fiona.name == "Fiona"
-                        RETURN f_fiona
-                )
-                INSERT { _from: alice[0]._id, _to: fiona[0]._id, "type": "friend", "vertex": alice[0]._key }
-                    INTO relation
-                    LET r = NEW
-                    RETURN r._key
-            """;
+                        LET alice = (
+                            FOR f_alice IN female
+                                FILTER f_alice.name == "Alice"
+                                RETURN f_alice
+                        )
+                        LET fiona = (
+                            FOR f_fiona IN female
+                                FILTER f_fiona.name == "Fiona"
+                                RETURN f_fiona
+                        )
+                        INSERT { _from: alice[0]._id, _to: fiona[0]._id, "type": "friend", "vertex": alice[0]._key }
+                            INTO relation
+                            LET r = NEW
+                            RETURN r._key
+                    """;
 
             beginLogger.info("Executing AQL Query 3: insert an edge...");
             try {
@@ -221,28 +210,28 @@ public class Main {
             } catch (Exception e) {
                 endLogger.error("Query 3 Failure: " + e.getMessage());
             }
-            
+
         }
 
         // AQL Queries 4-5: DOCUMENT
         // doc vs doc array
         {
             /**
-             *  [
-                    {
-                        "_key": "alice",
-                        "_id": "female/alice",
-                        "_rev": "_e4luqTS---",
-                        "name": "Alice"
-                    }
-                ]
+             * [
+             * {
+             * "_key": "alice",
+             * "_id": "female/alice",
+             * "_rev": "_e4luqTS---",
+             * "name": "Alice"
+             * }
+             * ]
              */
             String query4 = """
-                FOR f_alice IN female
-                    FILTER f_alice.name == "Alice"
-                    // we can also use `RETURN f_alice` directly
-                    RETURN DOCUMENT(female, f_alice._key)
-            """;
+                        FOR f_alice IN female
+                            FILTER f_alice.name == "Alice"
+                            // we can also use `RETURN f_alice` directly
+                            RETURN DOCUMENT(female, f_alice._key)
+                    """;
 
             beginLogger.info("Executing AQL Query 4: read the document(s) of name \"Alice\"...");
             try {
@@ -254,16 +243,16 @@ public class Main {
             }
 
             /*
-             *  [
-                    [
-                        {
-                        "_key": "alice",
-                        "_id": "female/alice",
-                        "_rev": "_e3ylytC---",
-                        "name": "Alice"
-                        }
-                    ]
-                ]
+             * [
+             * [
+             * {
+             * "_key": "alice",
+             * "_id": "female/alice",
+             * "_rev": "_e3ylytC---",
+             * "name": "Alice"
+             * }
+             * ]
+             * ]
              */
             // Subqueries always return a result array
             // even if there is only a single return value
@@ -271,27 +260,27 @@ public class Main {
             // use FIRST() to unwind the nested array, i.e.,
             /**
              * String query5 = """
-                LET a = (
-                    FOR f_alice IN female
-                        FILTER f_alice.name == "Alice"
-                        RETURN DOCUMENT(female, f_alice._key)
-                )
-                RETURN FIRST(a)
-            """;
+             * LET a = (
+             * FOR f_alice IN female
+             * FILTER f_alice.name == "Alice"
+             * RETURN DOCUMENT(female, f_alice._key)
+             * )
+             * RETURN FIRST(a)
+             * """;
              */
             // but here we still stick to this more complicated case
             // and see how we apply the Java Driver here
             String query5 = """
-                LET a = (
-                    FOR f_alice IN female
-                        FILTER f_alice.name == "Alice"
-                        RETURN DOCUMENT(female, f_alice._key)
-                )
-                RETURN a
-            """;
+                        LET a = (
+                            FOR f_alice IN female
+                                FILTER f_alice.name == "Alice"
+                                RETURN DOCUMENT(female, f_alice._key)
+                        )
+                        RETURN a
+                    """;
 
             beginLogger.info("Executing AQL Query 5: read an array of " +
-                "document(s) of name \"Alice\"...");
+                    "document(s) of name \"Alice\"...");
             try {
                 // use the implemented `queryDocumentArray` to read such query results
                 List<BaseDocument> docArray = Utils.queryDocumentArray(db, query5);
@@ -307,13 +296,13 @@ public class Main {
         {
             // insert some documents - AQL
             String query6 = """
-                FOR i in 1..5
-                    INSERT { "_key": CONCAT("someone", i), "name": "Someone" }
-                        INTO male
-            """;
+                        FOR i in 1..5
+                            INSERT { "_key": CONCAT("someone", i), "name": "Someone" }
+                                INTO male
+                    """;
 
             beginLogger.info("Executing AQL Query 6: insert five docs with " +
-                "incrementing keys and a common name \"Someone\"");
+                    "incrementing keys and a common name \"Someone\"");
             try {
                 long start = System.nanoTime();
                 db.query(query6, null);
@@ -326,7 +315,7 @@ public class Main {
 
             // insert some documents - Java Driver
             beginLogger.info("Executing Insert by Java Driver: insert another five docs with " +
-                "incrementing keys and a common name \"Someone\"");
+                    "incrementing keys and a common name \"Someone\"");
             try {
                 long start = System.nanoTime();
                 for (int i = 6; i < 11; i++) {
@@ -342,7 +331,6 @@ public class Main {
             }
         }
 
-
         // AQL Quert 7: Read
         // iterator vs list
         /**
@@ -352,10 +340,10 @@ public class Main {
         {
             // After Query 7, we introduce a method `filterByName`
             String query7 = """
-                FOR m IN male
-                    FILTER m.name == "Someone"
-                    RETURN m
-            """;
+                        FOR m IN male
+                            FILTER m.name == "Someone"
+                            RETURN m
+                    """;
 
             beginLogger.info("Executing AQL Query 7: read the document(s) of name \"Someone\"...");
             try {
@@ -373,7 +361,7 @@ public class Main {
                 // convert ArangoCursor to List
                 List<BaseDocument> docList = cursor.asListRemaining();
                 logger.info("Keys: {}",
-                    docList.stream().map(doc -> doc.getKey()).collect(Collectors.toList()).toString());
+                        docList.stream().map(doc -> doc.getKey()).collect(Collectors.toList()).toString());
                 endLogger.info("Query 7 Success.");
             } catch (Exception e) {
                 endLogger.error("Query 7 Failure: " + e.getMessage());
@@ -383,20 +371,20 @@ public class Main {
         // AQL Query 8: SORT and LIMIT
         {
             String query8 = """
-                FOR m_someone IN male
-                    FILTER m_someone.name == "Someone"
-                    SORT m_someone._key DESC
-                    LIMIT 2, 3
-                    RETURN m_someone
-            """;
+                        FOR m_someone IN male
+                            FILTER m_someone.name == "Someone"
+                            SORT m_someone._key DESC
+                            LIMIT 2, 3
+                            RETURN m_someone
+                    """;
 
             beginLogger.info("Executing AQL Query 8: sort and limit " +
-                "the document(s) of name \"Someone\"...");
+                    "the document(s) of name \"Someone\"...");
             try {
                 ArangoCursor<BaseDocument> cursor = db.query(query8, BaseDocument.class);
                 List<BaseDocument> docList = cursor.asListRemaining();
                 logger.info("Keys: {}",
-                    docList.stream().map(doc -> doc.getKey()).collect(Collectors.toList()).toString());
+                        docList.stream().map(doc -> doc.getKey()).collect(Collectors.toList()).toString());
                 endLogger.info("Query 8 Success.");
             } catch (Exception e) {
                 endLogger.error("Query 8 Failure: " + e.getMessage());
@@ -411,19 +399,19 @@ public class Main {
             // update a single doc
             // OLD, NEW
             String query9 = """
-                UPDATE "someone1"
-                    WITH { name: "NotSomeone" } IN male
-                    RETURN { old: OLD, new: NEW }
-            """;
+                        UPDATE "someone1"
+                            WITH { name: "NotSomeone" } IN male
+                            RETURN { old: OLD, new: NEW }
+                    """;
 
             beginLogger.info("Executing AQL Query 9: update the doc with key \"someone1\"...");
             try {
                 @SuppressWarnings("unchecked")
                 ArangoCursor<Map<String, Object>> cursor = db.query(query9,
-                    (Class<Map<String, Object>>) ((Class<?>) Map.class));
+                        (Class<Map<String, Object>>) ((Class<?>) Map.class));
                 cursor.forEach(map -> logger.info("old: {}, new: {}",
-                    map.get("old").toString(),
-                    map.get("new").toString()));
+                        map.get("old").toString(),
+                        map.get("new").toString()));
                 endLogger.info("Query 9 Success.");
             } catch (Exception e) {
                 endLogger.error("Query 9 Failure: " + e.getMessage());
@@ -432,15 +420,15 @@ public class Main {
             // "READ after WRITE" is not allowed, Error: 1579
             // https://www.arangodb.com/docs/stable/appendix-error-codes.html#1579
             String query10 = """
-                LET a = (
-                    FOR m_someone IN male
-                        FILTER m_someone.name == "Someone"
-                        UPDATE m_someone WITH { name: "NotSomeone" } IN male
-                )
-                FOR m IN male
-                    FILTER m.name == "NotSomeone"
-                    RETURN m
-            """;
+                        LET a = (
+                            FOR m_someone IN male
+                                FILTER m_someone.name == "Someone"
+                                UPDATE m_someone WITH { name: "NotSomeone" } IN male
+                        )
+                        FOR m IN male
+                            FILTER m.name == "NotSomeone"
+                            RETURN m
+                    """;
 
             beginLogger.info("Executing AQL Query 10: update remaining docs of name \"Someone\"...");
             try {
@@ -448,7 +436,7 @@ public class Main {
                 // convert ArangoCursor to List
                 List<BaseDocument> docList = cursor.asListRemaining();
                 logger.info("Keys: {}",
-                    docList.stream().map(doc -> doc.getKey()).collect(Collectors.toList()).toString());
+                        docList.stream().map(doc -> doc.getKey()).collect(Collectors.toList()).toString());
                 endLogger.info("Query 10 Success.");
             } catch (Exception e) {
                 endLogger.error("Query 10 Failure: " + e.getMessage());
@@ -459,7 +447,7 @@ public class Main {
             try {
                 List<BaseDocument> docList = filterByName(db, "male", "NotSomeone");
                 logger.info("Keys: {}",
-                    docList.stream().map(doc -> doc.getKey()).collect(Collectors.toList()).toString());
+                        docList.stream().map(doc -> doc.getKey()).collect(Collectors.toList()).toString());
                 endLogger.info("AQL Read Success.");
             } catch (Exception e) {
                 endLogger.error("AQL Read Failure: " + e.getMessage());
@@ -468,10 +456,10 @@ public class Main {
             // separate "READ after WRITE"
             // start from WRITE/UPDATE
             String query11 = """
-                FOR m_someone IN male
-                    FILTER m_someone.name == "Someone"
-                    UPDATE m_someone WITH { name: "NotSomeone" } IN male
-            """;
+                        FOR m_someone IN male
+                            FILTER m_someone.name == "Someone"
+                            UPDATE m_someone WITH { name: "NotSomeone" } IN male
+                    """;
 
             beginLogger.info("Executing AQL Query 11: update remaining docs of name \"Someone\"...");
             try {
@@ -485,7 +473,7 @@ public class Main {
             try {
                 List<BaseDocument> docList = filterByName(db, "male", "NotSomeone");
                 logger.info("Keys: {}",
-                    docList.stream().map(doc -> doc.getKey()).collect(Collectors.toList()).toString());
+                        docList.stream().map(doc -> doc.getKey()).collect(Collectors.toList()).toString());
                 endLogger.info("AQL Read Success.");
             } catch (Exception e) {
                 endLogger.error("AQL Read Failure: " + e.getMessage());
@@ -493,15 +481,15 @@ public class Main {
 
             // "WRITE after READ", ok
             String query12 = """
-                LET a = (
-                    FOR m IN male
-                        FILTER m.name == "NotSomeone"
-                        RETURN m
-                )
-                FOR m_someone IN male
-                    FILTER m_someone.name == "NotSomeone"
-                    UPDATE m_someone WITH { name: "Someone" } IN male
-            """;
+                        LET a = (
+                            FOR m IN male
+                                FILTER m.name == "NotSomeone"
+                                RETURN m
+                        )
+                        FOR m_someone IN male
+                            FILTER m_someone.name == "NotSomeone"
+                            UPDATE m_someone WITH { name: "Someone" } IN male
+                    """;
 
             beginLogger.info("Executing AQL Query 12: update docs of name \"NotSomeone\"...");
             try {
@@ -515,7 +503,7 @@ public class Main {
             try {
                 List<BaseDocument> docList = filterByName(db, "male", "NotSomeone");
                 logger.info("Keys: {}",
-                    docList.stream().map(doc -> doc.getKey()).collect(Collectors.toList()).toString());
+                        docList.stream().map(doc -> doc.getKey()).collect(Collectors.toList()).toString());
                 endLogger.info("AQL Read Success.");
             } catch (Exception e) {
                 endLogger.error("AQL Read Failure: " + e.getMessage());
@@ -525,20 +513,20 @@ public class Main {
             try {
                 List<BaseDocument> docList = filterByName(db, "male", "Someone");
                 logger.info("Keys: {}",
-                    docList.stream().map(doc -> doc.getKey()).collect(Collectors.toList()).toString());
+                        docList.stream().map(doc -> doc.getKey()).collect(Collectors.toList()).toString());
                 endLogger.info("AQL Read Success.");
             } catch (Exception e) {
                 endLogger.error("AQL Read Failure: " + e.getMessage());
             }
         }
-        
+
         // AQL Query 13: REMOVE
         {
             String query13 = """
-                FOR m IN male
-                    FILTER m.name == "Someone"
-                    REMOVE m IN male
-            """;
+                        FOR m IN male
+                            FILTER m.name == "Someone"
+                            REMOVE m IN male
+                    """;
 
             beginLogger.info("Executing AQL Query 13: remove docs of name \"Someone\"...");
             try {
@@ -552,7 +540,7 @@ public class Main {
             try {
                 List<BaseDocument> docList = filterByName(db, "male", "Someone");
                 logger.info("Keys: {}",
-                    docList.stream().map(doc -> doc.getKey()).collect(Collectors.toList()).toString());
+                        docList.stream().map(doc -> doc.getKey()).collect(Collectors.toList()).toString());
                 endLogger.info("AQL Read Success.");
             } catch (Exception e) {
                 endLogger.error("AQL Read Failure: " + e.getMessage());
@@ -563,52 +551,51 @@ public class Main {
         // Array expansion, MERGE and inline expressions
         {
             String userArray = """
-                [
-                    {
-                      "name": "john",
-                      "age": 35,
-                      "friends": [
-                        { "name": "tina", "age": 43 },
-                        { "name": "helga", "age": 52 },
-                        { "name": "alfred", "age": 34 }
-                      ]
-                    },
-                    {
-                      "name": "yves",
-                      "age": 24,
-                      "friends": [
-                        { "name": "sergei", "age": 27 },
-                        { "name": "tiffany", "age": 25 }
-                      ]
-                    },
-                    {
-                      "name": "sandra",
-                      "age": 40,
-                      "friends": [
-                        { "name": "bob", "age": 32 },
-                        { "name": "elena", "age": 48 }
-                      ]
-                    }
-                ]
-            """;
+                        [
+                            {
+                              "name": "john",
+                              "age": 35,
+                              "friends": [
+                                { "name": "tina", "age": 43 },
+                                { "name": "helga", "age": 52 },
+                                { "name": "alfred", "age": 34 }
+                              ]
+                            },
+                            {
+                              "name": "yves",
+                              "age": 24,
+                              "friends": [
+                                { "name": "sergei", "age": 27 },
+                                { "name": "tiffany", "age": 25 }
+                              ]
+                            },
+                            {
+                              "name": "sandra",
+                              "age": 40,
+                              "friends": [
+                                { "name": "bob", "age": 32 },
+                                { "name": "elena", "age": 48 }
+                              ]
+                            }
+                        ]
+                    """;
 
             // array expansion
-            
+
             // friends=null
             // String query14 = "LET users =".concat(userArray).concat(
-            //     """    
-            //         FOR u IN users
-            //             RETURN { name: u.name, friends: u.friends.name }
-            //     """
+            // """
+            // FOR u IN users
+            // RETURN { name: u.name, friends: u.friends.name }
+            // """
             // );
 
             // friends is the array of "u.friends.name"
             String query14 = "LET users =".concat(userArray).concat(
-                """    
-                    FOR u IN users
-                        RETURN { name: u.name, friends: u.friends[*].name }
-                """
-            );
+                    """
+                                FOR u IN users
+                                    RETURN { name: u.name, friends: u.friends[*].name }
+                            """);
 
             beginLogger.info("Executing AQL Query 14: array expansion...");
             try {
@@ -622,12 +609,11 @@ public class Main {
 
             // merge
             String query15 = "LET users =".concat(userArray).concat(
-                """    
-                    FOR u IN users
-                        RETURN MERGE({ name: u.name, friends: u.friends[*].name },
-                            { age: u.age })
-                """
-            );
+                    """
+                                FOR u IN users
+                                    RETURN MERGE({ name: u.name, friends: u.friends[*].name },
+                                        { age: u.age })
+                            """);
 
             beginLogger.info("Executing AQL Query 15: merge two sub-docs...");
             try {
@@ -644,12 +630,12 @@ public class Main {
             // the second star flats the inner arrays to one array
             // CURRENT means the current value of iteration
             String query16 = """
-                LET arr = [ [ 1, 2 ], 3, [ 4, 5 ], 6 ]
-                RETURN arr[** FILTER CURRENT % 2 == 0]
-            """;
+                        LET arr = [ [ 1, 2 ], 3, [ 4, 5 ], 6 ]
+                        RETURN arr[** FILTER CURRENT % 2 == 0]
+                    """;
             beginLogger.info("Executing AQL Query 16: inline filter...");
             try {
-                // Suppress the warning here 
+                // Suppress the warning here
                 // Type safety: Unchecked cast from Class to Class<List<Integer>>
                 @SuppressWarnings("unchecked")
                 ArangoCursor<List<Integer>> cursor = db.query(query16, (Class<List<Integer>>) ((Class<?>) List.class));
@@ -666,13 +652,13 @@ public class Main {
             // path is a map with all previous edges and vertices
             // a path is like { "edges": [ ... ], "vertices": [ ... ] }
             String query17 = """
-                WITH male, female
-                FOR vertex, edge, path
-                    IN 2..5
-                    OUTBOUND "female/alice"
-                    GRAPH social
-                    RETURN CONCAT_SEPARATOR("->", path.vertices[*].name)
-            """;
+                        WITH male, female
+                        FOR vertex, edge, path
+                            IN 2..5
+                            OUTBOUND "female/alice"
+                            GRAPH social
+                            RETURN CONCAT_SEPARATOR("->", path.vertices[*].name)
+                    """;
             beginLogger.info("Executing AQL Query 17: graph traversal...");
             try {
                 ArangoCursor<String> cursor = db.query(query17, String.class);
@@ -683,17 +669,17 @@ public class Main {
                 endLogger.error("Query 17 Failure: " + e.getMessage());
             }
 
-            // cycles detection
+            // detect cycles starting from Alice
             String query18 = """
-                WITH male, female
-                FOR vertex, edge, path
-                    IN 2..5
-                    OUTBOUND @start
-                    GRAPH social
-                    FILTER vertex._id == @start
-                    RETURN CONCAT_SEPARATOR("->", path.vertices[*].name)
-            """;
-            beginLogger.info("Executing AQL Query 18: cycle detection...");
+                        WITH male, female
+                        FOR vertex, edge, path
+                            IN 2..5
+                            OUTBOUND @start
+                            GRAPH social
+                            FILTER vertex._id == @start
+                            RETURN CONCAT_SEPARATOR("->", path.vertices[*].name)
+                    """;
+            beginLogger.info("Executing AQL Query 18: cycle detection, starting from vertex Alice...");
             try {
                 // start from Alice
                 Map<String, Object> bindVars = Collections.singletonMap("start", "female/alice");
@@ -704,33 +690,54 @@ public class Main {
             } catch (Exception e) {
                 endLogger.error("Query 18 Failure: " + e.getMessage());
             }
+
+            // detect all cycles
+            String query19 = """
+                        FOR start IN relation
+                            FOR vertex, edge, path
+                                IN 2..5
+                                OUTBOUND start._from
+                                GRAPH social
+                                FILTER edge._to == start._from
+                                RETURN CONCAT_SEPARATOR("->", path.vertices[*].name)
+                    """;
+            beginLogger.info("Executing AQL Query 19: cycle detection, starting from all edges...");
+            try {
+                ArangoCursor<String> cursor = db.query(query19, String.class);
+                List<String> path = cursor.asListRemaining();
+                logger.info(path.toString());
+                endLogger.info("Query 19 Success.");
+            } catch (Exception e) {
+                endLogger.error("Query 19 Failure: " + e.getMessage());
+            }
+
+            // detect the cycles within only a subset of vertices (say, vertices in the male collection)
+            // IS_SAME_COLLECTION():
+            // https://www.arangodb.com/docs/stable/aql/functions-document.html#is_same_collection
+            // `PRUNE NOT IS_SAME_COLLECTION("male", vertex)` gets rid of 
+            // all non-male vertices
+            // In this case where we only have two vertex collections, we can also query by
+            // `PRUNE IS_SAME_COLLECTION("female", vertex)`
+            String query20 = """
+                        FOR start IN relation
+                            FOR vertex, edge, path
+                                IN 2..5
+                                OUTBOUND start._from
+                                GRAPH social
+                                PRUNE NOT IS_SAME_COLLECTION("male", vertex)
+                                FILTER edge._to == start._from
+                                RETURN CONCAT_SEPARATOR("->", path.vertices[*].name)
+                    """;
+            beginLogger.info("Executing AQL Query 20: cycle detection, starting from all male vertices...");
+            try {
+                ArangoCursor<String> cursor = db.query(query20, String.class);
+                List<String> path = cursor.asListRemaining();
+                logger.info(path.toString());
+                endLogger.info("Query 20 Success.");
+            } catch (Exception e) {
+                endLogger.error("Query 20 Failure: " + e.getMessage());
+            }
         }
-
-
-        // // Execute AQL queries
-        // {
-        //     for (int i = 0; i < 10; i++) {
-        //         BaseDocument value = new BaseDocument(String.valueOf(i));
-        //         value.addAttribute("name", "Homer");
-        //         collection.insertDocument(value);
-        //     }
-
-        //     String query = "FOR t IN firstCollection FILTER t.name == @name RETURN t";
-        //     Map<String, Object> bindVars = Collections.singletonMap("name", "Homer");
-        //     logger.info("Executing read query ...");
-        //     ArangoCursor<BaseDocument> cursor = db.query(query, bindVars, null, BaseDocument.class);
-        //     cursor.forEach(aDocument -> logger.info("Key: " + aDocument.getKey()));
-        // }
-
-        // // Delete a document with AQL
-        // {
-        //     String query = "FOR t IN firstCollection FILTER t.name == @name "
-        //             + "REMOVE t IN firstCollection LET removed = OLD RETURN removed";
-        //     Map<String, Object> bindVars = Collections.singletonMap("name", "Homer");
-        //     logger.info("Executing delete query ...");
-        //     ArangoCursor<BaseDocument> cursor = db.query(query, bindVars, null, BaseDocument.class);
-        //     cursor.forEach(aDocument -> logger.info("Removed document " + aDocument.getKey()));
-        // }
 
         arangoDB.shutdown();
     }

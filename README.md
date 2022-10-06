@@ -11,10 +11,57 @@ I present a couple of sub-projects under the `/project` folder.
     - a tutorial of AQL in combination with Java Driver
   - `graph-data-import`
     - an example to show how to import graph data from CSV files to ArangoDB with Java Driver
-  - `quickstart-tutorial`
+    - an [example](./project/v6/graph-data-import/logs/example-query.md) of a cycle detection query and its profiling results
+  - `java-driver-tutorial`
     - directly from the tutorial of Java Driver from ArangoDB docs [Docs](https://www.arangodb.com/docs/stable/drivers/java-tutorial.html)[GitHub](`https://github.com/arangodb/arangodb-java-driver-quickstart`)
 - `v7` (using ArangoDB Java Driver version 7.0.0-SNAPSHOT)
-  - `quickstart-tutorial` (same as above)
+  - `java-driver-tutorial` (same as above)
+
+### AQL Tutorial
+
+As a highlight, the content of the AQL tutorial is listed below.
+
+1. `INSERT`, "**C**reate a doc"
+
+- **[Query 1]** insert a vertex
+- **[Query 2]** return the inserted document, `NEW`
+- **[Query 3]** insert an edge
+
+2. `DOCUMENT`, "**R**ead a doc"
+
+- **[Query 4]** read from "the result array of docs" (normally)
+- **[Query 5]** read from an array of "the result array of docs" (occasionally)
+  - `FIRST()`
+  - a self-defined method with Java Driver
+- *more* about "Read a doc"
+  - **[Query 6]** AQL vs Java Driver: AQL is slightly faster when inserting a batch of documents
+  - **[Query 7]** `ArangoCursor` is an iterator: print a nice result in a list by converting the iterator to an ArrayList
+  - **[Query 8]** `SORT` and `LIMIT`
+
+3. `UPDATE`, "**U**pdate a doc"
+
+- `UPDATE` vs `REPLACE`
+- **[Query 9]** update a single doc, `OLD` and `NEW`
+- **[Query 10]** "READ after WRITE" is not allowed in a single AQL query
+- **[Query 11]** batch update in a loop
+- **[Query 12]** "WRITE after READ" is allowed in a single AQL query
+
+4. `REMOVE`, "**D**elete a doc"
+
+- **[Query 13]** remove in a loop
+
+5. Array and `MERGE`
+
+- **[Query 14]** array expansion: within "the result array of docs", if we have an attribute which is an inner array, array expansion will take out an attribute of this inner array and form a new array having only the values of this attribute. For example, we have an array of `users` which has an attribute `friends` listing out some friends. If we want to get only the names of the friends, we use array expansion to take out and form a new array with only the names of the friends, and put the array on the `friends` attribute.
+- **[Query 15]** `MERGE` directly merges two documents
+- **[Query 16]** inline expressions, `*` vs `**`, `CURRENT`
+
+6. Graph traversals and cycle detection
+
+- **[Query 17]** graph traversal
+- **[Query 18]** detect cycles starting from a certain vertex
+- **[Query 19]** detect all cycles
+- **[Query 20]** detect the cycles within only a subset of vertices
 
 ## I. Quickstart
 
@@ -43,12 +90,12 @@ arango-coordinator2  | 1664615274.538391 [1] INFO [cf3f4] {general} ArangoDB (ve
       - The logs are quite verbose. This is because (1) the logs have been set to TRACE level, meaning the log of all levels will be written to the log files, and (2) both user queries and system executions will be recorded in the logs. If you want to see a shorter log file, you can adjust the `--log.level` options in the `docker-compose.yml` (and probably also `docker-compose-restart.yml`) file to a level that is satisfactory to you.
       - Read the logs of each coordinator and understand the execution of each query of your interest. Try searching code `[11160]` (meaning query begins) and code `[f5cee]` (meaning query ends) in `queries.log`.
 
-### Run a (sub-)project, e.g., "~/project/v6/quickstart-tutorial"
+### Run a (sub-)project, e.g., "~/project/v6/aql-tutorial"
 
 After following the above instructions and setting up the environment, you can run any sub-project provided in the `/project` folder. (The path `/project` has been linked to the path `~/project` (i.e., `/root/project`) in the Docker container `arango-test`.) Java 17 and Maven have been pre-installed within the Docker container.
 
 ```shell
-cd ~/project/v6/quickstart-tutorial
+cd ~/project/v6/aql-tutorial
 mvn clean compile
 mvn exec:java -Dexec.mainClass="com.jasonqiu.demo.Main"
 ```
