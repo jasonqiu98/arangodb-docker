@@ -7,15 +7,15 @@ An environment to build a simple ArangoDB cluster with one agency node, two coor
 I present a couple of sub-projects under the `/project` folder.
 
 - `v6` (using ArangoDB Java Driver version 6.16.1)
-  - `aql-tutorial`
+  - [`aql-tutorial`](./project/v6/aql-tutorial/src/main/java/com/jasonqiu/demo/Main.java)
     - a tutorial of AQL in combination with Java Driver
-  - `graph-data-import`
+  - [`graph-data-import`](./project/v6/graph-data-import/src/main/java/com/jasonqiu/demo/Main.java)
     - an example to show how to import graph data from CSV files to ArangoDB with Java Driver
     - an [example](./project/v6/graph-data-import/logs/example-query.md) of a cycle detection query and its profiling results
-  - `java-driver-tutorial`
+  - [`java-driver-tutorial`](./project/v6/java-driver-tutorial/src/main/java/com/jasonqiu/demo/Main.java)
     - directly from the tutorial of Java Driver from ArangoDB docs [Docs](https://www.arangodb.com/docs/stable/drivers/java-tutorial.html)[GitHub](`https://github.com/arangodb/arangodb-java-driver-quickstart`)
 - `v7` (using ArangoDB Java Driver version 7.0.0-SNAPSHOT)
-  - `java-driver-tutorial` (same as above)
+  - [`java-driver-tutorial`](./project/v7/java-driver-tutorial/src/main/java/com/jasonqiu/demo/Main.java) (same as above)
 
 ### AQL Tutorial
 
@@ -65,7 +65,7 @@ As a highlight, the content of the AQL tutorial is listed below.
 
 ## I. Quickstart
 
-### Access the default database through a coordinator in an ArangoDB Cluster
+### 1. Access the default database through a coordinator in an ArangoDB Cluster
 
 1. Make sure the Docker daemon is running on your machine.
 2. Start the orchestration by `docker compose -f docker-compose.yml up` (or in the backend: `docker compose up -f docker-compose.yml -d`), until you see some messages like the following.
@@ -78,19 +78,9 @@ arango-coordinator2  | 1664615274.306926 [1] INFO [99d80] {general} bootstrapped
 arango-coordinator2  | 1664615274.538391 [1] INFO [cf3f4] {general} ArangoDB (version 3.9.2 [linux]) is ready for business. Have fun!
 ```
 
-3. Open a new terminal and enter the `test` container by `docker exec -it arango-test sh`.
-4. Q&A
-   1. How do I connect to the Web interface of ArangoDB?
-      - Access `http://localhost:8000` (for `coordinator1`) and `http://localhost:8001` (for `coordinator2`) in the browser. Also remember to choose the correct database you are trying to access.
-   2. How do I connect to the database using `arangosh`?
-      - Connect to the default database `_system` via a coordinator, say `coordinator1` by `arangosh --server.endpoint tcp://coordinator1:8529 --server.username root --server.password ""`, and then submit any JavaScript commands.
-   3. How do I access the logs on my local machine?
-      - Run `sudo chmod 777 logs/*/*.log` on the root of the project folder before accessing the log files on your local machine.
-   4. How do I read the logs?
-      - The logs are quite verbose. This is because (1) the logs have been set to TRACE level, meaning the log of all levels will be written to the log files, and (2) both user queries and system executions will be recorded in the logs. If you want to see a shorter log file, you can adjust the `--log.level` options in the `docker-compose.yml` (and probably also `docker-compose-restart.yml`) file to a level that is satisfactory to you.
-      - Read the logs of each coordinator and understand the execution of each query of your interest. Try searching code `[11160]` (meaning query begins) and code `[f5cee]` (meaning query ends) in `queries.log`.
+3. Open a new terminal and enter the `arango-test` container by `docker exec -it arango-test sh`.
 
-### Run a (sub-)project, e.g., "~/project/v6/aql-tutorial"
+### 2. Run a (sub-)project, e.g., "~/project/v6/aql-tutorial", within the `arango-test` Docker container
 
 After following the above instructions and setting up the environment, you can run any sub-project provided in the `/project` folder. (The path `/project` has been linked to the path `~/project` (i.e., `/root/project`) in the Docker container `arango-test`.) Java 17 and Maven have been pre-installed within the Docker container.
 
@@ -100,7 +90,9 @@ mvn clean compile
 mvn exec:java -Dexec.mainClass="com.jasonqiu.demo.Main"
 ```
 
-### Stop and remove the cluster
+### 3. Stop and remove the cluster
+
+Open a new terminal on you local machine, and run the following commands.
 
 - Stop
   - `docker compose stop` to stop all the services
@@ -109,6 +101,25 @@ mvn exec:java -Dexec.mainClass="com.jasonqiu.demo.Main"
   - `docker rmi arangodb:3.9.2` and `docker rmi arangodb-docker-test:latest` to remove the relevant Docker images.
 - Clean and remove the persisting volumes
   - Run `sudo rm -rf nodes logs` to delete relevant records/logs (if you don't need them for analysis any more)
+
+### 4. Q&A
+
+1. How do I connect to the Web interface of ArangoDB (on local machine)?
+
+- Access `http://localhost:8000` (for `coordinator1`) and `http://localhost:8001` (for `coordinator2`) in the browser. Also remember to choose the correct database you are trying to access.
+
+2. How do I connect to the database using `arangosh` (in `arango-test` container)?
+
+- Connect to the default database `_system` via a coordinator, say `coordinator1` by `arangosh --server.endpoint tcp://coordinator1:8529 --server.username root --server.password ""`, and then submit any JavaScript commands.
+
+3. How do I access the logs (on local machine)?
+
+- Run `sudo chmod 777 logs/*/*.log` on the root of the project folder before accessing the log files on your local machine.
+
+4. How do I read the logs?
+
+- The logs are quite verbose. This is because (1) the logs have been set to TRACE level, meaning the log of all levels will be written to the log files, and (2) both user queries and system executions will be recorded in the logs. If you want to see a shorter log file, you can adjust the `--log.level` options in the `docker-compose.yml` (and probably also `docker-compose-restart.yml`) file to a level that is satisfactory to you.
+- Read the logs of each coordinator and understand the execution of each query of your interest. Try searching code `[11160]` (meaning query begins) and code `[f5cee]` (meaning query ends) in `queries.log`.
 
 ### [Optional] Import an extract of LDBC by `arangoimport`
 
