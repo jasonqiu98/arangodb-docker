@@ -5,9 +5,12 @@ import com.arangodb.entity.BaseDocument;
 import com.arangodb.entity.CollectionType;
 import com.arangodb.entity.EdgeDefinition;
 import com.arangodb.entity.GraphEntity;
+import com.arangodb.entity.StreamTransactionEntity;
 import com.arangodb.entity.VertexEntity;
 import com.arangodb.mapping.ArangoJack;
 import com.arangodb.model.CollectionCreateOptions;
+import com.arangodb.model.DocumentCreateOptions;
+import com.arangodb.model.StreamTransactionOptions;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -292,7 +295,7 @@ public class Main {
         }
 
         // AQL Query 6
-        // INSERT: AQL vs Java Driver
+        // INSERT: AQL, Java Driver and Stream Transactions
         {
             // insert some documents - AQL
             String query6 = """
@@ -304,30 +307,35 @@ public class Main {
             beginLogger.info("Executing AQL Query 6: insert five docs with " +
                     "incrementing keys and a common name \"Someone\"");
             try {
-                long start = System.nanoTime();
-                db.query(query6, null);
-                long end = System.nanoTime();
-                double runtime = (end - start) / 1e6;
+                ArangoCursor<BaseDocument> cursor = db.query(query6, BaseDocument.class);
+                double runtime = (long) (cursor.getStats().getExecutionTime() * 1e9) / 1e6;
                 endLogger.info("Query 6 Success. Runtime: {} ms", runtime);
             } catch (Exception e) {
                 endLogger.error("Query 6 Failure: " + e.getMessage());
             }
 
-            // insert some documents - Java Driver
-            beginLogger.info("Executing Insert by Java Driver: insert another five docs with " +
-                    "incrementing keys and a common name \"Someone\"");
+            // insert some documents - Batch Insert by Java Driver, in a Stream Transaction
+            beginLogger.info("Executing Batch Insert by Java Driver: insert another five docs");
+            List<BaseDocument> baseDocArray = new ArrayList<>();
+            for (int i = 6; i < 11; i++) {
+                BaseDocument baseDoc = new BaseDocument("someone" + i);
+                baseDoc.addAttribute("name", "Someone");
+                baseDocArray.add(baseDoc);
+            }
+            StreamTransactionEntity tx = db
+                    .beginStreamTransaction(new StreamTransactionOptions().writeCollections("male"));
+            DocumentCreateOptions options = new DocumentCreateOptions().streamTransactionId(tx.getId());
             try {
                 long start = System.nanoTime();
-                for (int i = 6; i < 11; i++) {
-                    BaseDocument baseDoc = new BaseDocument("someone" + i);
-                    baseDoc.addAttribute("name", "Someone");
-                    db.collection("male").insertDocument(baseDoc);
-                }
+                db.collection("male").insertDocuments(baseDocArray, options);
                 long end = System.nanoTime();
+                db.commitStreamTransaction(tx.getId());
                 double runtime = (double) (end - start) / 1e6;
-                logger.info("Insert by Java Driver Success. Runtime: {} ms", runtime);
+                // the timing doesn't count in the begin and end of the transaction
+                endLogger.info("Batch Insert by Java Driver Success. Runtime: {} ms", runtime);
             } catch (Exception e) {
-                logger.error("Insert by Java Driver Failure: " + e.getMessage());
+                db.abortStreamTransaction(tx.getId());
+                endLogger.error("Batch Insert by Java Driver Failure: " + e.getMessage());
             }
         }
 
@@ -711,10 +719,11 @@ public class Main {
                 endLogger.error("Query 19 Failure: " + e.getMessage());
             }
 
-            // detect the cycles within only a subset of vertices (say, vertices in the male collection)
+            // detect the cycles within only a subset of vertices (say, vertices in the male
+            // collection)
             // IS_SAME_COLLECTION():
             // https://www.arangodb.com/docs/stable/aql/functions-document.html#is_same_collection
-            // `PRUNE NOT IS_SAME_COLLECTION("male", vertex)` gets rid of 
+            // `PRUNE NOT IS_SAME_COLLECTION("male", vertex)` gets rid of
             // all non-male vertices
             // In this case where we only have two vertex collections, we can also query by
             // `PRUNE IS_SAME_COLLECTION("female", vertex)`
