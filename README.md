@@ -1,6 +1,6 @@
 # Dockerized ArangoDB Cluster with AQL Code Examples
 
-An environment to build a simple ArangoDB cluster with one agency node, two coordinator nodes and three DBServer nodes. Borrowed and adapted based on <https://github.com/Korov/Docker/blob/master/arangodb/cluster/docker-compose.yaml>.
+An environment to build a simple ArangoDB cluster with one agency node, two coordinator nodes and three DBServer nodes. The setup of the Dockerized cluster is inspired by <https://github.com/Korov/Docker/blob/master/arangodb/cluster/docker-compose.yaml>. In addition, this repository provides a simple and quick AQL tutorial in combination with the official Java Driver.
 
 ## Intro - What's in this project?
 
