@@ -13,7 +13,7 @@ I present a couple of sub-projects under the `/project` folder.
     - an example to show how to import graph data from CSV files to ArangoDB with Java Driver
     - an [example](./project/v6/graph-data-import/logs/example-query.md) of a cycle detection query and its profiling results
   - [`java-driver-tutorial`](./project/v6/java-driver-tutorial/src/main/java/com/jasonqiu/demo/Main.java)
-    - directly from the tutorial of Java Driver from ArangoDB docs [Docs](https://www.arangodb.com/docs/stable/drivers/java-tutorial.html)[GitHub](`https://github.com/arangodb/arangodb-java-driver-quickstart`)
+    - directly from the tutorial of Java Driver from ArangoDB docs [Docs](https://www.arangodb.com/docs/stable/drivers/java-tutorial.html) [GitHub](`https://github.com/arangodb/arangodb-java-driver-quickstart`)
 - `v7` (using ArangoDB Java Driver version 7.0.0-SNAPSHOT)
   - [`java-driver-tutorial`](./project/v7/java-driver-tutorial/src/main/java/com/jasonqiu/demo/Main.java) (same as above)
 
