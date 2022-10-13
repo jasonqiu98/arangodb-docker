@@ -19,6 +19,6 @@ remove:
 	docker rmi arangodb:3.9.2
 	docker rmi arangodb-docker-test:latest
 
-# completely persisting volumes
+# completely remove the persisting volumes
 clean:
 	sudo rm -rf logs nodes
