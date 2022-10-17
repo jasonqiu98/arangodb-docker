@@ -728,13 +728,13 @@ public class Main {
             // In this case where we only have two vertex collections, we can also query by
             // `PRUNE IS_SAME_COLLECTION("female", vertex)`
             String query20 = """
-                        FOR start IN relation
+                        FOR start IN male
                             FOR vertex, edge, path
                                 IN 2..5
-                                OUTBOUND start._from
+                                OUTBOUND start._id
                                 GRAPH social
                                 PRUNE NOT IS_SAME_COLLECTION("male", vertex)
-                                FILTER edge._to == start._from
+                                FILTER edge._to == start._id
                                 RETURN CONCAT_SEPARATOR("->", path.vertices[*].name)
                     """;
             beginLogger.info("Executing AQL Query 20: cycle detection, starting from all male vertices...");
