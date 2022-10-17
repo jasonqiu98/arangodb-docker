@@ -65,7 +65,7 @@ As a highlight, the content of the AQL tutorial is listed below.
 
 ## I. Quickstart
 
-### 1. Access the default database through a coordinator in an ArangoDB Cluster
+### 1. Set up the ArangoDB Cluster (in a single machine) and access the `arango-test` Docker container
 
 1. Make sure the Docker daemon is running on your machine.
 2. Start the orchestration by `docker compose -f docker-compose.yml up` (or in the backend: `docker compose up -f docker-compose.yml -d`), until you see some messages like the following.
